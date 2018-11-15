@@ -1,0 +1,6 @@
+# Demo intermediate build files
+/demo/build/
+# Demo build output
+/demo/out/
+# Visual Studio private files
+/demo/src/.vs/
