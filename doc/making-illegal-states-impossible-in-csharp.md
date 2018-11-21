@@ -95,210 +95,136 @@ public sealed class EmailContactInfo
 
 Остальные типы - `StateCode`, `ZipCode`, `PostalAddress` и `PersonalName` портируются на C# схожим образом.
 
-# Создаём тип-сумму
+# Создаём контакт
 
-На первый взгляд, тип-сумма `ContactInfo` принадлежит миру функционального программирования и не переносится на объектно-ориентированные языки никаким адекватным образом. Но прежде чем бросать затею с невыразимостью некорректных состояний и писать проверки в конструкторе, всё же стоит изучить возможные варианты.
+Итак, код должен выражать правило "Контакт должен содержать адрес электронной почты или почтовый адрес (или оба адреса)". Требуется выразить это правило таким образом, чтобы корректность состояния была видна из опредения типов и проверялась компилятором.
 
-## Инструменты для реализации в C#
+## Выражаем различные состояния контакта
 
-Самым очевидным выражением взаимоисключающих состояний в C# является enum. К сожалению, в этой задаче разным состояниям присущи также различные данные, так что придётся создать разные типы с общим базовым классом.
-
-```csharp
-[Flags]
-public enum ContactInfoState
-{
-    EmailOnly = 1,
-    PostOnly = 2,
-    EmailAndPost = EmailOnly | PostOnly
-}
-
-public abstract class ContactInfo
-{
-
-}
-
-// Конструкторы убраны для краткости
-
-public sealed class EmailOnlyContactInfo : ContactInfo
-{
-    public EmailContactInfo Email { get; }
-}
-
-public sealed class PostOnlyContactInfo : ContactInfo
-{
-    public PostalContactInfo Post { get; }
-}
-
-public sealed class EmailAndPostContactInfo : ContactInfo
-{
-    public EmailContactInfo Email { get; }
-
-    public PostalContactInfo Post { get; }
-}
-```
-
-Теперь можно передавать `ContactInfoState` и `ContactInfo` и выполнять преобразование контакта к нужному типу в зависимости от состояния флагов. Наверное, работать будет, но оставляет открытыми много вопросов: значение `ContactInfoState` по умолчанию не определено, нет гарантий, что будут установлены корректные флаги состояния, да и соответствие флагов состояния и переданного `ContactInfo` под вопросом.
-
-А что если сделать `ContactInfoState` членом `ContactInfo` и инициализировать в онструторе наследников? Тогда вопросы 2 и 3 будут решены. С дургой стороны, зачем отдельно хранить флаги, если можно напрямую проверять тип, теме более что теперь в C# есть ограниченная поддержка сопоставления с образцом?
+Значит, контакт - это объект, содержащий имя человека и либо адрес электронной почты, либо почтовый адрес, либо оба адреса. Очевидно, один класс не может содержать трёх разных наборов свойств, следовательно, надо определить три разных класса. Все три класса должны содержать имя контакта и при этом должна быть возможность обрабатывать контакты разных типов единообразно, не зная, какие именно адреса содержит контакт. Следовательно, контакт будет представлен абстракным базовым классом, содержащим имя контакта, и тремя реализациями с различным набором полей.
 
 ```csharp
-switch (contactInfo)
-{
-    case EmailOnlyContactInfo emailContactInfo:
-        ...
-    case PostOnlyContactInfo postContactInfo:
-        ...
-    case EmailAndPostContactInfo emailAndPostContactInfo:
-        ...
-}
-```
-
-Уже лучше, лишь бы не забыть какой-нибудь switch по реализациям `ContactInfo` при добавлении наследников.
-
-А есть ли лучший способ выбрать действие в зависимости от типа в ООП вообще и C# в частности? В такой постановке вопроса ответ очевиден - надо сделать `ContactInfo` полиморфным, добавив виртуальные методы в базовый класс. Тогда код не только станет более идиоматичным, но и исключит возможность забыть про обработку новых состояний контакта, если они появятся.
-
-Единственная проблема - скорее всего, контакт будет использоваться во многих местах, и, если для каждого места делать свой виртуальный метод, то границы ответственности иерархии `ContactInfo` будет размываться, а логика различных случаев использования контактов размазываться между собственно обработкой и наследниками `ContactInfo`. Впрочем, до решения этой проблемы и окончательного варианта реализации типа-суммы в C# остался один шаг.
-
-## Visitor (посетитель)
-
-Старый шаблон проектирования Посетитель отвечает всем требованиям. Он позволяется реализовать только допустимые состояния контакта, не вынуждает сваливать все возможные случаи обработи контакта в его наследников и позволяет переложить проверку полноты обработки состояний контакта на компилятор.
-
-```csharp
-public abstract class ContactInfo
-{
-    public abstract void AcceptVisitor (IContactInfoVisitor visitor);
-}
-
-public interface IContactInfoVisitor
-{
-    void Visit (EmailContactInfo email);
-
-    void Visit (PostalContactInfo post);
-
-    void Visit (EmailContactInfo email, PostalContactInfo post);
-}
-
-public sealed class EmailOnlyContactInfo : ContactInfo
-{
-    private readonly EmailContactInfo email_;
-
-    public override void AcceptVisitor (IContactInfoVisitor visitor)
-        => (visitor ?? throw new ArgumentNullException (nameof (visitor))).Visit (email_);
-}
-
-public sealed class PostOnlyContactInfo : ContactInfo
-{
-    private readonly PostalContactInfo post_;
-
-    public override void AcceptVisitor (IContactInfoVisitor visitor)
-        => (visitor ?? throw new ArgumentNullException (nameof (visitor))).Visit (post_);
-}
-
-public sealed class EmailAndPostContactInfo : ContactInfo
-{
-    private readonly EmailContactInfo email_;
-
-    private readonly PostalContactInfo post_;
-
-    public override void AcceptVisitor (IContactInfoVisitor visitor)
-    {
-        if (visitor == null)
-        {
-            throw new ArgumentNullException (nameof (visitor));
-        }
-
-        visitor.Visit (email_, post_);
-    }
-}
-```
-
-Я сделал поля реализаций `ContactInfo` закрытыми, чтобы проверка типа объекта без использования `IContactInfoVisitor` была бессмысленной.
-
-Теперь можно реализовать создание контакта:
-
-```csharp
-public sealed class Contact
+public abstract class Contact
 {
     public PersonalName Name { get; }
 
-    public ContactInfo ContactInfo { get; }
-
-    public Contact (PersonalName name, ContactInfo contactInfo)
+    protected Contact (PersonalName name)
     {
         if (name == null)
         {
             throw new ArgumentNullException (nameof (name));
         }
-        if (contactInfo == null)
-        {
-            throw new ArgumentNullException (nameof (contactInfo));
-        }
 
         Name = name;
-        ContactInfo = contactInfo;
     }
+}
 
+public sealed class PostOnlyContact : Contact
+{
+    private readonly PostalContactInfo post_;
+
+    public PostOnlyContact (PersonalName name, PostalContactInfo post)
+        : base (name)
+    {
+        if (post == null)
+        {
+            throw new ArgumentNullException (nameof (post));
+        }
+
+        post_ = post;
+    }
+}
+
+public sealed class EmailOnlyContact : Contact
+{
+    private readonly EmailContactInfo email_;
+
+    public EmailOnlyContact(PersonalName name, EmailContactInfo email)
+        : base (name)
+    {
+        if (email == null)
+        {
+            throw new ArgumentNullException (nameof (email));
+        }
+
+        email_ = email;
+    }
+}
+
+public sealed class EmailAndPostContact : Contact
+{
+    private readonly EmailContactInfo email_;
+
+    private readonly PostalContactInfo post_;
+
+    public EmailAndPostContact (PersonalName name, EmailContactInfo email, PostalContactInfo post)
+        : base (name)
+    {
+        if (email == null)
+        {
+            throw new ArgumentNullException (nameof (email));
+        }
+        if (post == null)
+        {
+            throw new ArgumentNullException (nameof (post));
+        }
+
+        email_ = email;
+        post_ = post;
+    }
+}
+```
+
+Вы можете возразить, что [надо использовать композицию](https://en.wikipedia.org/wiki/Composition_over_inheritance), а не наследование, и вообще надо наследовать поведение, а не данные. Замечания справедливые, но, на мой взгляд, применение иерархии классов здесь оправдано. Во-первых, подклассы не просто представляют особые случаи базового класса, вся иерархия представляет собой одну концепцию - контакт. Три реализации контакта очень точно отражают три случая, оговоренные бизнес-правилом. Во-вторых, при желании можно заменить базовый класс Contact на интерфейс и продублировать опредение свойства `Name` в реализациях. В-третьих, если иерархия станет действительно проблемой, можно выделить состояние контакта в отдельную иерархию, как это было сделано в исходном примере. На F# наследование записей невозможно, зато новые типы объявляются достаточно просто, поэтому разбиение было выполнено сразу. На C# же более естественным решением будет разместить поля Name в базовом классе.
+
+## Создание контакта
+
+Создание контакта происходит довольно просто.
+
+```csharp
+public abstract class Contact
+{
     public static Contact FromEmail (PersonalName name, string emailStr)
     {
         var email = new EmailAddress (emailStr);
         var emailContactInfo = new EmailContactInfo (email, false);
-        var contactInfo = new EmailOnlyContactInfo (emailContactInfo);
-        return new Contact (name, contactInfo);
+        return new EmailOnlyContact (name, emailContactInfo);
     }
 }
-```
 
-И обновление:
-
-```csharp
-public sealed class Contact
-{
-    private sealed class PostalAddressUpdater : IContactInfoVisitor
-    {
-        public ContactInfo UpdatedContactInfo { get; private set; }
-
-        private readonly PostalContactInfo newPostalAddress_;
-
-        public PostalAddressUpdater (PostalContactInfo newPostalAddress)
-        {
-            System.Diagnostics.Debug.Assert (newPostalAddress != null);
-            newPostalAddress_ = newPostalAddress;
-        }
-
-        public void Visit (EmailContactInfo email)
-        {
-            System.Diagnostics.Debug.Assert (email != null);
-            UpdatedContactInfo = new EmailAndPostContactInfo (email, newPostalAddress_);
-        }
-
-        public void Visit (PostalContactInfo _)
-        {
-            UpdatedContactInfo = new PostOnlyContactInfo (newPostalAddress_);
-        }
-
-        public void Visit (EmailContactInfo email, PostalContactInfo _)
-        {
-            System.Diagnostics.Debug.Assert (email != null);
-            UpdatedContactInfo = new EmailAndPostContactInfo (email, newPostalAddress_);
-        }
-    }
-
-    public Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-    {
-        var updater = new PostalAddressUpdater (newPostalAddress);
-        ContactInfo.AcceptVisitor (updater);
-        return new Contact (Name, updater.UpdatedContactInfo);
-    }
-}
-```
-
-## Пример использования
-
-Ну и наконец, воспроизведём пример использования получившегося кода:
-
-```csharp
 var name = new PersonalName ("A", null, "Smith");
 var contact = Contact.FromEmail (name, "abc@example.com");
+```
+
+Если адрес электронной почты окажется некорректным, этот код выбросит исключение, что можно считать аналогом возврата `None` в исходном примере.
+
+## Обновление контакта
+
+Обновление контакта тоже не вызывает сложностей - надо просто добавить абстрактный метод в тип `Contact`.
+
+```csharp
+public abstract class Contact
+{
+    public abstract Contact UpdatePostalAddress (PostalContactInfo newPostalAddress);
+}
+
+public sealed class EmailOnlyContact : Contact
+{
+    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
+        => new EmailAndPostContact (Name, email_, newPostalAddress);
+}
+
+public sealed class PostOnlyContact : Contact
+{
+    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
+        => new PostOnlyContact (Name, newPostalAddress);
+}
+
+public sealed class EmailAndPostContact : Contact
+{
+    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
+        => new EmailAndPostContact (Name, email_, newPostalAddress);
+}
 
 var state = new StateCode ("CA");
 var zip = new ZipCode ("97210");
@@ -309,45 +235,129 @@ var newContact = contact.UpdatePostalAddress (newPostalContactInfo);
 
 Как и при использовании option.Value в F#, здесь возможен выброс исключения из конструкторов, если адрес электронной почты, почтовый индекс или штат указаны неверно, но для C# это является распространённой практикой. Конечно же, в рабочем коде здесь или где-то в вызывающем коде должна быть предусмотрена обработка исключений.
 
-## Дальнейшие улучшения
+## Обработка контактов вне иерархии
 
-При переносе примеров с F# я старался использовать наиболее распространённые варианты реализации.
+Логично расположить логиу обновления контакта в самой иерархии `Contact`. Но что, если требуется выполнить что-то, что не укладывается в её область ответственности? Предположим, что надо отобразить контакты в пользовательском интерфейсе.
 
-Так, я использовал "классическую" реализацию Посетителя, изменяющую своё внутреннее состояние. Можно немного видоизменить шаблон, чтобы Посетитель возвращал значение.
+Можно, конечно, опять добавить абстрактный метод в базовый класс, и продолжать добавлять по новому метод каждый раз, когда понадобится ещё как-то обрабатывать контакты. Но тогда будет нарушен [принцип единственной ответственности](https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%B8%D0%BD%D1%86%D0%B8%D0%BF_%D0%B5%D0%B4%D0%B8%D0%BD%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D0%B9_%D0%BE%D1%82%D0%B2%D0%B5%D1%82%D1%81%D1%82%D0%B2%D0%B5%D0%BD%D0%BD%D0%BE%D1%81%D1%82%D0%B8), иерархия `Contact` будет захламлена, а логика обработки размазана между реализациями `Contact` и местами ответственными за, собственно, обработку контактов. В F# такой проблемы не было, хотелось бы, чтобы код на C# был не хуже!
+
+Ближайшим аналогом сопоставления с образцом в C# является конструкция switch. Можно было бы добавить в `Contact` свойство перечислимого типа, которое позволяло бы определить реальный тип контакта и выполнить преобразование. Также можно было бы использовать более новые возможности C# и выполнять switch по типу экземпляра `Contact`. Но ведь мы хотели, чтобы при добавлении новых корректных состояний `Contact` компилятор сам подсказывал, где не хватает обработки новых случаев, а switch не гарантирует обработу всех возможных случаев.
+
+Решение - шаблон Посетитель (Visitor). Он позволяет выбирать обработчик в зависимости от реализации `Contact`, отвязывает методы обработки контактов от их иерархии, и, если добавится новый тип контакта, и, соответственно, новый метод в интерфейсе Посетителя, то потребуется его написать во всех реализациях интерфейса. Все требования выполнены!
 
 ```csharp
-public abstract class ContactInfo
+public abstract class Contact
 {
-    public abstract T AcceptVisitor<T> (IContactInfoVisitor<T> visitor);
+    public abstract void AcceptVisitor (IContactVisitor visitor);
 }
 
-public interface IContactInfoVisitor<T>
+public interface IContactVisitor
 {
-    T Visit (EmailContactInfo email);
+    void Visit (PersonalName name, EmailContactInfo email);
 
-    T Visit (PostalContactInfo post);
+    void Visit (PersonalName name, PostalContactInfo post);
 
-    T Visit (EmailContactInfo email, PostalContactInfo post);
+    void Visit (PersonalName name, EmailContactInfo email, PostalContactInfo post);
+}
+
+public sealed class EmailOnlyContact : Contact
+{
+    public override void AcceptVisitor (IContactVisitor visitor)
+    {
+        if (visitor == null)
+        {
+            throw new ArgumentNullException (nameof (visitor));
+        }
+
+        visitor.Visit (Name, email_);
+    }
+}
+
+public sealed class PostOnlyContact : Contact
+{
+    public override void AcceptVisitor (IContactVisitor visitor)
+    {
+        if (visitor == null)
+        {
+            throw new ArgumentNullException (nameof (visitor));
+        }
+
+        visitor.Visit (Name, post_);
+    }
+}
+
+public sealed class EmailAndPostContact : Contact
+{
+    public override void AcceptVisitor (IContactVisitor visitor)
+    {
+        if (visitor == null)
+        {
+            throw new ArgumentNullException (nameof (visitor));
+        }
+
+        visitor.Visit (Name, email_, post_);
+    }
 }
 ```
 
-Во-вторых, если `ContactInfo` объявлен в библиотеке и появление новых наследников в клиентах бибилиотеки нежелательно, то можно добавить конструктор ContactInfo с видимостью internal, либо вообще сделать его наследников вложенными классами, объявить видимость конструктора и наследников private, а создание эземпляров делать через статические методы-фабрики.
+Теперь можно написать код для отображения контактов. Для простоты я буду использовать консольный интерфейс.
 
 ```csharp
-public abstract class ContactInfo
+public sealed class ContactUi
 {
-    private sealed class EmailOnlyContactInfo : ContactInfo
+    private sealed class Visitor : IContactVisitor
     {
-        private readonly EmailContactInfo email_;
+        void IContactVisitor.Visit (PersonalName name, EmailContactInfo email)
+        {
+            Console.WriteLine (name);
+            Console.WriteLine ("* Email: {0}", email);
+        }
+
+        void IContactVisitor.Visit (PersonalName name, PostalContactInfo post)
+        {
+            Console.WriteLine (name);
+            Console.WriteLine ("* Postal addrress: {0}", post);
+        }
+
+        void IContactVisitor.Visit (PersonalName name, EmailContactInfo email, PostalContactInfo post)
+        {
+            Console.WriteLine (name);
+            Console.WriteLine ("* Email: {0}", email);
+            Console.WriteLine ("* Postal addrress: {0}", post);
+        }
     }
 
-    private ContactInfo ()
+    public void Display (Contact contact)
+        => contact.AcceptVisitor (new Visitor ());
+}
+
+var ui = new ContactUi ();
+ui.Display (newContact);
+```
+
+## Дальнейшие улучшения
+
+Если `Contact` объявлен в библиотеке и появление новых наследников в клиентах бибилиотеки нежелательно, то можно изменить область видимости конструктора `Contact` на `internal`, либо вообще сделать его наследников вложенными классами, объявить видимость реализаций и конструктора `private`, а создание эземпляров делать через только статические методы-фабрики.
+
+```csharp
+public abstract class Contact
+{
+    private sealed class EmailOnlyContact : Contact
+    {
+        public EmailOnlyContact (PersonalName name, EmailContactInfo email)
+            : base (name)
+        {
+
+        }
+    }
+
+    private Contact (PersonalName name)
     {
 
     }
 
-    public static ContactInfo EmailOnly (EmailContactInfo email)
-        => new EmailOnlyContactInfo (email);
+    public static Contact EmailOnly (PersonalName name, EmailContactInfo email)
+        => new EmailOnlyContact (name, email);
 }
 ```
 

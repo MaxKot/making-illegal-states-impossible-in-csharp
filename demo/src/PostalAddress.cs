@@ -87,6 +87,8 @@ namespace Demo
 
         /// <inheritdoc />
         public override string ToString ()
-            => $"{Address1} {Address2}, {City}, {State} {Zip}";
+            => !String.IsNullOrEmpty (Address2)
+                ? $"{Address1} {Address2}, {City}, {State} {Zip}"
+                : $"{Address1}, {City}, {State} {Zip}";
     }
 }

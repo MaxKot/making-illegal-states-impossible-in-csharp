@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Demo
 {
     /// <summary>Представляет приложение.</summary>
@@ -17,7 +16,8 @@ namespace Demo
             var newPostalContactInfo = new PostalContactInfo (newPostalAddress, false);
             var newContact = contact.UpdatePostalAddress (newPostalContactInfo);
 
-            Console.WriteLine (newContact);
+            var ui = new ContactUi ();
+            ui.Display (newContact);
         }
     }
 }

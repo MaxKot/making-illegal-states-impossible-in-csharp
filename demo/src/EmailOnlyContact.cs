@@ -3,19 +3,23 @@
 namespace Demo
 {
     /// <summary>Представляет контаные данные, содержащие только адрес электронной почты.</summary>
-    public sealed class EmailOnlyContactInfo : ContactInfo
+    public sealed class EmailOnlyContact : Contact
     {
         /// <summary>Адрес электронной почты.</summary>
         private readonly EmailContactInfo email_;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="EmailOnlyContactInfo"/>.
+        /// Инициализирует новый экземпляр класса <see cref="EmailOnlyContact"/>.
         /// </summary>
+        /// <param name="name">Имя человека.</param>
         /// <param name="email">Адрес электронной почты.</param>
         /// <exception cref="ArgumentNullException">
+        /// Параметр <paramref name="name"/> иммет значение <see langword="null"/>.
+        /// -или-
         /// Параметр <paramref name="email"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public EmailOnlyContactInfo (EmailContactInfo email)
+        public EmailOnlyContact(PersonalName name, EmailContactInfo email)
+            : base (name)
         {
             if (email == null)
             {
@@ -26,18 +30,22 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override void AcceptVisitor (IContactInfoVisitor visitor)
+        public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
+            => new EmailAndPostContact (Name, email_, newPostalAddress);
+
+        /// <inheritdoc />
+        public override void AcceptVisitor (IContactVisitor visitor)
         {
             if (visitor == null)
             {
                 throw new ArgumentNullException (nameof (visitor));
             }
 
-            visitor.Visit (email_);
+            visitor.Visit (Name, email_);
         }
 
         /// <inheritdoc />
         public override string ToString ()
-            => $"Email: {email_}";
+            => $"{base.ToString ()}: Email: {email_}";
     }
 }

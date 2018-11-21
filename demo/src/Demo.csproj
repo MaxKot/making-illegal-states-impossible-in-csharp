@@ -49,22 +49,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Contact.cs" />
-    <Compile Include="ContactInfo.cs" />
+    <Compile Include="ContactUi.cs" />
     <Compile Include="EmailAddress.cs" />
-    <Compile Include="EmailAndPostContactInfo.cs" />
+    <Compile Include="EmailAndPostContact.cs" />
     <Compile Include="EmailContactInfo.cs" />
-    <Compile Include="EmailOnlyContactInfo.cs" />
-    <Compile Include="IContactInfoVisitor.cs" />
+    <Compile Include="EmailOnlyContact.cs" />
+    <Compile Include="IContactVisitor.cs" />
     <Compile Include="PersonalName.cs" />
     <Compile Include="PostalAddress.cs" />
     <Compile Include="PostalContactInfo.cs" />
-    <Compile Include="PostOnlyContactInfo.cs" />
+    <Compile Include="PostOnlyContact.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StateCode.cs" />
     <Compile Include="ZipCode.cs" />
   </ItemGroup>
-  
   <Target Name="ConfigurationInfo" AfterTargets="PrepareForBuild">
     <Message Importance="High" Text="Configuration:          '$(Configuration)'" />
     <Message Importance="High" Text="Platform:               '$(Platform)'" />

@@ -8,9 +8,7 @@ namespace Demo
         /// <summary>
         /// Возвращает почтовый адрес.
         /// </summary>
-        /// <value>
-        /// Почтовый адрес.
-        /// </value>
+        /// <value>Почтовый адрес.</value>
         public PostalAddress Address { get; }
 
         /// <summary>

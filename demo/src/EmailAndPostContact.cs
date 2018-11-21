@@ -5,7 +5,7 @@ namespace Demo
     /// <summary>
     /// Представляет контаные данные, содержащие и адрес электронной почты, и почтовый адрес.
     /// </summary>
-    public sealed class EmailAndPostContactInfo : ContactInfo
+    public sealed class EmailAndPostContact : Contact
     {
         /// <summary>Адрес электронной почты.</summary>
         private readonly EmailContactInfo email_;
@@ -14,16 +14,20 @@ namespace Demo
         private readonly PostalContactInfo post_;
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <see cref="EmailAndPostContactInfo"/>.
+        /// Инициализирует новый экземпляр класса <see cref="EmailAndPostContact"/>.
         /// </summary>
+        /// <param name="name">Имя человека.</param>
         /// <param name="email">Адрес электронной почты.</param>
         /// <param name="post">Почтовый адрес.</param>
         /// <exception cref="ArgumentNullException">
+        /// Параметр <paramref name="name"/> иммет значение <see langword="null"/>.
+        /// -или-
         /// Параметр <paramref name="email"/> имеет значение <see langword="null"/>.
         /// -или-
         /// Параметр <paramref name="post"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public EmailAndPostContactInfo (EmailContactInfo email, PostalContactInfo post)
+        public EmailAndPostContact (PersonalName name, EmailContactInfo email, PostalContactInfo post)
+            : base (name)
         {
             if (email == null)
             {
@@ -39,18 +43,22 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override void AcceptVisitor (IContactInfoVisitor visitor)
+        public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
+            => new EmailAndPostContact (Name, email_, newPostalAddress);
+
+        /// <inheritdoc />
+        public override void AcceptVisitor (IContactVisitor visitor)
         {
             if (visitor == null)
             {
                 throw new ArgumentNullException (nameof (visitor));
             }
 
-            visitor.Visit (email_, post_);
+            visitor.Visit (Name, email_, post_);
         }
 
         /// <inheritdoc />
         public override string ToString ()
-            => $"Email: {email_}; Post: {post_}";
+            => $"{base.ToString ()}: Email: {email_}; Post: {post_}";
     }
 }

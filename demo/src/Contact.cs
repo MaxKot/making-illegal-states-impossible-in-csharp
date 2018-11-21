@@ -3,7 +3,7 @@
 namespace Demo
 {
     /// <summary>Ассоциациирует человека с его контактными данными.</summary>
-    public sealed class Contact
+    public abstract class Contact
     {
         /// <summary>
         /// Возвращает имя человека.
@@ -12,35 +12,30 @@ namespace Demo
         public PersonalName Name { get; }
 
         /// <summary>
-        /// Возвращает контактные данные человека.
-        /// </summary>
-        /// <value>Контактные данные человека.</value>
-        public ContactInfo ContactInfo { get; }
-
-        /// <summary>
         /// Инициализирует новый экземпляр класса <see cref="Contact"/>.
         /// </summary>
         /// <param name="name">Имя человека.</param>
-        /// <param name="contactInfo">Контактные данные человека.</param>
         /// <exception cref="ArgumentNullException">
         /// <paramref name="name"/> иммет значение <see langword="null"/>.
-        /// или
-        /// <paramref name="contactInfo"/> иммет значение <see langword="null"/>.
         /// </exception>
-        public Contact (PersonalName name, ContactInfo contactInfo)
+        protected Contact (PersonalName name)
         {
             if (name == null)
             {
                 throw new ArgumentNullException (nameof (name));
             }
-            if (contactInfo == null)
-            {
-                throw new ArgumentNullException (nameof (contactInfo));
-            }
 
             Name = name;
-            ContactInfo = contactInfo;
         }
+
+        /// <summary>
+        /// Производит двойную диспетчеризацию в зависимости от реализации
+        /// <see cref="Contact"/>.
+        /// </summary>
+        /// <param name="visitor">
+        /// Объект, обрабатывающий вызовы конкретных реализации <see cref="Contact"/>.
+        /// </param>
+        public abstract void AcceptVisitor (IContactVisitor visitor);
 
         /// <summary>
         /// Создаёт ассоциацию укказанного человека с адресом электронной почты.
@@ -52,55 +47,7 @@ namespace Demo
         {
             var email = new EmailAddress (emailStr);
             var emailContactInfo = new EmailContactInfo (email, false);
-            var contactInfo = new EmailOnlyContactInfo (emailContactInfo);
-            return new Contact (name, contactInfo);
-        }
-
-        /// <summary>Добавляет либо заменяет почтовый адрес в контактных данных.</summary>
-        private sealed class PostalAddressUpdater : IContactInfoVisitor
-        {
-            /// <summary>
-            /// Возвращает обновлённые контактные данные.
-            /// </summary>
-            /// <value>
-            /// Обновлённые контактные данные или <see langword="null"/>, если обновление не
-            /// применялось ни к каким контактным данным.
-            /// </value>
-            public ContactInfo UpdatedContactInfo { get; private set; }
-
-            /// <summary>Новый почтовый адрес.</summary>
-            private readonly PostalContactInfo newPostalAddress_;
-
-            /// <summary>
-            /// Инициализирует новый экземпляр класса <see cref="PostalAddressUpdater"/>.
-            /// </summary>
-            /// <param name="newPostalAddress">Новый почтовый адрес.</param>
-            public PostalAddressUpdater (PostalContactInfo newPostalAddress)
-            {
-                System.Diagnostics.Debug.Assert (newPostalAddress != null);
-                UpdatedContactInfo = null;
-                newPostalAddress_ = newPostalAddress;
-            }
-
-            /// <inheritdoc />
-            public void Visit (EmailContactInfo email)
-            {
-                System.Diagnostics.Debug.Assert (email != null);
-                UpdatedContactInfo = new EmailAndPostContactInfo (email, newPostalAddress_);
-            }
-
-            /// <inheritdoc />
-            public void Visit (PostalContactInfo _)
-            {
-                UpdatedContactInfo = new PostOnlyContactInfo (newPostalAddress_);
-            }
-
-            /// <inheritdoc />
-            public void Visit (EmailContactInfo email, PostalContactInfo _)
-            {
-                System.Diagnostics.Debug.Assert (email != null);
-                UpdatedContactInfo = new EmailAndPostContactInfo (email, newPostalAddress_);
-            }
+            return new EmailOnlyContact (name, emailContactInfo);
         }
 
         /// <summary>
@@ -108,15 +55,10 @@ namespace Demo
         /// </summary>
         /// <param name="newPostalAddress">Новый почтовый адрес.</param>
         /// <returns>Контакт с обновлённым почтовым адресом.</returns>
-        public Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-        {
-            var updater = new PostalAddressUpdater (newPostalAddress);
-            ContactInfo.AcceptVisitor (updater);
-            return new Contact (Name, updater.UpdatedContactInfo);
-        }
+        public abstract Contact UpdatePostalAddress (PostalContactInfo newPostalAddress);
 
         /// <inheritdoc />
         public override string ToString ()
-            => $"{Name}: {ContactInfo}";
+            => $"{Name}";
     }
 }
