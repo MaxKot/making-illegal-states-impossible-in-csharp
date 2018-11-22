@@ -23,7 +23,7 @@ namespace Demo
             void IContactVisitor.Visit (PersonalName name, PostalContactInfo post)
             {
                 Console.WriteLine (name);
-                Console.WriteLine ("* Postal addrress: {0}", post);
+                Console.WriteLine ("* Postal address: {0}", post);
             }
 
             /// <inheritdoc />
@@ -31,7 +31,7 @@ namespace Demo
             {
                 Console.WriteLine (name);
                 Console.WriteLine ("* Email: {0}", email);
-                Console.WriteLine ("* Postal addrress: {0}", post);
+                Console.WriteLine ("* Postal address: {0}", post);
             }
         }
 

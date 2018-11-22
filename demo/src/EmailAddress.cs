@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Demo
 {
@@ -27,7 +28,7 @@ namespace Demo
             {
                 throw new ArgumentNullException (nameof (value));
             }
-            if (!System.Text.RegularExpressions.Regex.IsMatch (value, @"^\S+@\S+\.\S+$"))
+            if (!Regex.IsMatch (value, @"^\S+@\S+\.\S+$"))
             {
                 throw new ArgumentException ("Email address must contain an @ sign");
             }
