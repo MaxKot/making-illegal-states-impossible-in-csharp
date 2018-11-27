@@ -15,7 +15,7 @@
 
 Примеры на F# используют доменные типы вместо примитивов для адреса электронной почты, почтового кода США и кода штата. Попробуем сделать обёртку примитивного типа на C#:
 
-```csharp
+```cs
 public sealed class EmailAddress
 {
     public string Value { get; }
@@ -49,7 +49,7 @@ public sealed class EmailAddress
 }
 ```
 
-```csharp
+```cs
 var a = new EmailAddress("a@example.com");
 var b = new EmailAddress("b@example.com");
 
@@ -66,7 +66,7 @@ var receiverList = String.Join(";", a, b);
 
 Теперь надо создать аналог [записи](https://docs.microsoft.com/ru-ru/dotnet/fsharp/language-reference/records):
 
-```csharp
+```cs
 public sealed class EmailContactInfo
 {
     public EmailAddress EmailAddress { get; }
@@ -103,7 +103,7 @@ public sealed class EmailContactInfo
 
 Значит, контакт - это объект, содержащий имя человека и либо адрес электронной почты, либо почтовый адрес, либо оба адреса. Очевидно, один класс не может содержать трёх разных наборов свойств, следовательно, надо определить три разных класса. Все три класса должны содержать имя контакта и при этом должна быть возможность обрабатывать контакты разных типов единообразно, не зная, какие именно адреса содержит контакт. Следовательно, контакт будет представлен абстрактным базовым классом, содержащим имя контакта, и тремя реализациями с различным набором полей.
 
-```csharp
+```cs
 public abstract class Contact
 {
     public PersonalName Name { get; }
@@ -181,7 +181,7 @@ public sealed class EmailAndPostContact : Contact
 
 Создание контакта происходит довольно просто.
 
-```csharp
+```cs
 public abstract class Contact
 {
     public static Contact FromEmail(PersonalName name, string emailStr)
@@ -193,7 +193,7 @@ public abstract class Contact
 }
 ```
 
-```csharp
+```cs
 var name = new PersonalName("A", null, "Smith");
 var contact = Contact.FromEmail(name, "abc@example.com");
 ```
@@ -204,7 +204,7 @@ var contact = Contact.FromEmail(name, "abc@example.com");
 
 Обновление контакта тоже не вызывает сложностей - надо просто добавить абстрактный метод в тип `Contact`.
 
-```csharp
+```cs
 public abstract class Contact
 {
     public abstract Contact UpdatePostalAddress(PostalContactInfo newPostalAddress);
@@ -229,7 +229,7 @@ public sealed class EmailAndPostContact : Contact
 }
 ```
 
-```csharp
+```cs
 var state = new StateCode("CA");
 var zip = new ZipCode("97210");
 var newPostalAddress = new PostalAddress("123 Main", "", "Beverly Hills", state, zip);
@@ -249,7 +249,7 @@ var newContact = contact.UpdatePostalAddress(newPostalContactInfo);
 
 Но ведь в ООП есть и более удобный механизм для выбора логики в зависимости от типа, и мы им только что воспользовались при обновлении контакта. А раз теперь выбор зависит и от вызывающего типа, то он тоже должен быть полиморфным. Решение - шаблон Посетитель (Visitor). Он позволяет выбирать обработчик в зависимости от реализации `Contact`, отвязывает методы обработки контактов от их иерархии, и, если добавится новый тип контакта, и, соответственно, новый метод в интерфейсе Посетителя, то потребуется его написать во всех реализациях интерфейса. Все требования выполнены!
 
-```csharp
+```cs
 public abstract class Contact
 {
     public abstract void AcceptVisitor(IContactVisitor visitor);
@@ -306,7 +306,7 @@ public sealed class EmailAndPostContact : Contact
 
 Теперь можно написать код для отображения контактов. Для простоты я буду использовать консольный интерфейс.
 
-```csharp
+```cs
 public sealed class ContactUi
 {
     private sealed class Visitor : IContactVisitor
@@ -336,7 +336,7 @@ public sealed class ContactUi
 }
 ```
 
-```csharp
+```cs
 var ui = new ContactUi();
 ui.Display(newContact);
 ```
@@ -345,7 +345,7 @@ ui.Display(newContact);
 
 Если `Contact` объявлен в библиотеке и появление новых наследников в клиентах библиотеки нежелательно, то можно изменить область видимости конструктора `Contact` на `internal`, либо вообще сделать его наследников вложенными классами, объявить видимость реализаций и конструктора `private`, а создание экземпляров делать через только статические методы-фабрики.
 
-```csharp
+```cs
 public abstract class Contact
 {
     private sealed class EmailOnlyContact : Contact
