@@ -26,16 +26,16 @@ namespace Demo
         /// -или-
         /// Параметр <paramref name="post"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public EmailAndPostContact (PersonalName name, EmailContactInfo email, PostalContactInfo post)
-            : base (name)
+        public EmailAndPostContact(PersonalName name, EmailContactInfo email, PostalContactInfo post)
+            : base(name)
         {
             if (email == null)
             {
-                throw new ArgumentNullException (nameof (email));
+                throw new ArgumentNullException(nameof(email));
             }
             if (post == null)
             {
-                throw new ArgumentNullException (nameof (post));
+                throw new ArgumentNullException(nameof(post));
             }
 
             email_ = email;
@@ -43,22 +43,22 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-            => new EmailAndPostContact (Name, email_, newPostalAddress);
+        public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+            => new EmailAndPostContact(Name, email_, newPostalAddress);
 
         /// <inheritdoc />
-        public override void AcceptVisitor (IContactVisitor visitor)
+        public override void AcceptVisitor(IContactVisitor visitor)
         {
             if (visitor == null)
             {
-                throw new ArgumentNullException (nameof (visitor));
+                throw new ArgumentNullException(nameof(visitor));
             }
 
-            visitor.Visit (Name, email_, post_);
+            visitor.Visit(Name, email_, post_);
         }
 
         /// <inheritdoc />
-        public override string ToString ()
-            => $"{base.ToString ()}: Email: {email_}; Post: {post_}";
+        public override string ToString()
+            => $"{base.ToString()}: Email: {email_}; Post: {post_}";
     }
 }

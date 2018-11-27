@@ -21,32 +21,32 @@ namespace Demo
         /// <exception cref="ArgumentException">
         /// Параметр <paramref name="value"/> не является корректным почтовым индексом.
         /// </exception>
-        public ZipCode (string value)
+        public ZipCode(string value)
         {
             if (value == null)
             {
-                throw new ArgumentNullException (nameof (value));
+                throw new ArgumentNullException(nameof(value));
             }
-            if (!System.Text.RegularExpressions.Regex.IsMatch (value, @"^\d{5}$"))
+            if (!System.Text.RegularExpressions.Regex.IsMatch(value, @"^\d{5}$"))
             {
-                throw new ArgumentException ("Zip code must be 5 digits");
+                throw new ArgumentException("Zip code must be 5 digits");
             }
 
             Value = value;
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => Value;
 
         /// <inheritdoc />
-        public override bool Equals (object other)
+        public override bool Equals(object other)
             => other is ZipCode otherZipCode &&
-               Value.Equals (otherZipCode.Value);
+               Value.Equals(otherZipCode.Value);
 
         /// <inheritdoc />
-        public override int GetHashCode ()
-            => Value.GetHashCode ();
+        public override int GetHashCode()
+            => Value.GetHashCode();
 
         /// <summary>
         /// Осуществляет неявное преобразование значения типа <see cref="ZipCode"/> к типу
@@ -54,7 +54,7 @@ namespace Demo
         /// </summary>
         /// <param name="address">Почтовый индекс.</param>
         /// <returns>Результат преобразования.</returns>
-        public static implicit operator string (ZipCode zipCode)
+        public static implicit operator string(ZipCode zipCode)
             => zipCode?.Value;
     }
 }

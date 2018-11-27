@@ -22,32 +22,32 @@ namespace Demo
         /// <exception cref="ArgumentException">
         /// Параметр <paramref name="value"/> не является корректным адресом электронной почты.
         /// </exception>
-        public EmailAddress (string value)
+        public EmailAddress(string value)
         {
             if (value == null)
             {
-                throw new ArgumentNullException (nameof (value));
+                throw new ArgumentNullException(nameof(value));
             }
-            if (!Regex.IsMatch (value, @"^\S+@\S+\.\S+$"))
+            if (!Regex.IsMatch(value, @"^\S+@\S+\.\S+$"))
             {
-                throw new ArgumentException ("Email address must contain an @ sign");
+                throw new ArgumentException("Email address must contain an @ sign");
             }
 
             Value = value;
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => Value;
 
         /// <inheritdoc />
-        public override bool Equals (object other)
+        public override bool Equals(object other)
             => other is EmailAddress otherEmailAddress &&
-               Equals (Value, otherEmailAddress.Value);
+               Equals(Value, otherEmailAddress.Value);
 
         /// <inheritdoc />
-        public override int GetHashCode ()
-            => Value != null ? Value.GetHashCode () : 0;
+        public override int GetHashCode()
+            => Value != null ? Value.GetHashCode() : 0;
 
         /// <summary>
         /// Осуществляет неявное преобразование значения типа <see cref="EmailAddress"/> к типу
@@ -55,7 +55,7 @@ namespace Demo
         /// </summary>
         /// <param name="address">Адрес электронной почты.</param>
         /// <returns>Результат преобразования.</returns>
-        public static implicit operator string (EmailAddress address)
+        public static implicit operator string(EmailAddress address)
             => address.Value;
     }
 }

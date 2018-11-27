@@ -18,34 +18,34 @@ namespace Demo
         /// -или-
         /// Параметр <paramref name="post"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public PostOnlyContact (PersonalName name, PostalContactInfo post)
-            : base (name)
+        public PostOnlyContact(PersonalName name, PostalContactInfo post)
+            : base(name)
         {
             if (post == null)
             {
-                throw new ArgumentNullException (nameof (post));
+                throw new ArgumentNullException(nameof(post));
             }
 
             post_ = post;
         }
 
         /// <inheritdoc />
-        public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-            => new PostOnlyContact (Name, newPostalAddress);
+        public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+            => new PostOnlyContact(Name, newPostalAddress);
 
         /// <inheritdoc />
-        public override void AcceptVisitor (IContactVisitor visitor)
+        public override void AcceptVisitor(IContactVisitor visitor)
         {
             if (visitor == null)
             {
-                throw new ArgumentNullException (nameof (visitor));
+                throw new ArgumentNullException(nameof(visitor));
             }
 
-            visitor.Visit (Name, post_);
+            visitor.Visit(Name, post_);
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => $"{base.ToString()}: Post: {post_}";
     }
 }

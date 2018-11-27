@@ -30,11 +30,11 @@ namespace Demo
         /// <exception cref="ArgumentNullException">
         /// Параметр <paramref name="address"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public PostalContactInfo (PostalAddress address, bool isAddressValid)
+        public PostalContactInfo(PostalAddress address, bool isAddressValid)
         {
             if (address == null)
             {
-                throw new ArgumentNullException (nameof (address));
+                throw new ArgumentNullException(nameof(address));
             }
 
             Address = address;
@@ -42,7 +42,7 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => $"{Address}, {(IsAddressValid ? "valid" : "invalid")}";
     }
 }

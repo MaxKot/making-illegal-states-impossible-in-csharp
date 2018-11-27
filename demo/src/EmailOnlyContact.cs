@@ -19,33 +19,33 @@ namespace Demo
         /// Параметр <paramref name="email"/> имеет значение <see langword="null"/>.
         /// </exception>
         public EmailOnlyContact(PersonalName name, EmailContactInfo email)
-            : base (name)
+            : base(name)
         {
             if (email == null)
             {
-                throw new ArgumentNullException (nameof (email));
+                throw new ArgumentNullException(nameof(email));
             }
 
             email_ = email;
         }
 
         /// <inheritdoc />
-        public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-            => new EmailAndPostContact (Name, email_, newPostalAddress);
+        public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+            => new EmailAndPostContact(Name, email_, newPostalAddress);
 
         /// <inheritdoc />
-        public override void AcceptVisitor (IContactVisitor visitor)
+        public override void AcceptVisitor(IContactVisitor visitor)
         {
             if (visitor == null)
             {
-                throw new ArgumentNullException (nameof (visitor));
+                throw new ArgumentNullException(nameof(visitor));
             }
 
-            visitor.Visit (Name, email_);
+            visitor.Visit(Name, email_);
         }
 
         /// <inheritdoc />
-        public override string ToString ()
-            => $"{base.ToString ()}: Email: {email_}";
+        public override string ToString()
+            => $"{base.ToString()}: Email: {email_}";
     }
 }

@@ -21,17 +21,17 @@ namespace Demo
         /// <exception cref="ArgumentException">
         /// Параметр <paramref name="value"/> не является корректным кодом штата.
         /// </exception>
-        public StateCode (string value)
+        public StateCode(string value)
         {
             if (value == null)
             {
-                throw new ArgumentNullException (nameof (value));
+                throw new ArgumentNullException(nameof(value));
             }
 
-            var valueNormalized = value.ToUpper ();
-            if (Array.IndexOf (StateCodes, valueNormalized) < 0)
+            var valueNormalized = value.ToUpper();
+            if (Array.IndexOf(StateCodes, valueNormalized) < 0)
             {
-                throw new ArgumentException ("State is not in list");
+                throw new ArgumentException("State is not in list");
             }
 
             Value = valueNormalized;
@@ -41,17 +41,17 @@ namespace Demo
         private static readonly string[] StateCodes = { "AZ", "CA", "NY" }; // и т.д.
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => Value;
 
         /// <inheritdoc />
-        public override bool Equals (object other)
+        public override bool Equals(object other)
             => other is StateCode otherStateCode &&
-               Value.Equals (otherStateCode.Value);
+               Value.Equals(otherStateCode.Value);
 
         /// <inheritdoc />
-        public override int GetHashCode ()
-            => Value.GetHashCode ();
+        public override int GetHashCode()
+            => Value.GetHashCode();
 
         /// <summary>
         /// Осуществляет неявное преобразование значения типа <see cref="StateCode"/> к типу
@@ -59,7 +59,7 @@ namespace Demo
         /// </summary>
         /// <param name="address">Код штата.</param>
         /// <returns>Результат преобразования.</returns>
-        public static implicit operator string (StateCode stateCode)
+        public static implicit operator string(StateCode stateCode)
             => stateCode?.Value;
     }
 }

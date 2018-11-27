@@ -20,40 +20,40 @@ public sealed class EmailAddress
 {
     public string Value { get; }
 
-    public EmailAddress (string value)
+    public EmailAddress(string value)
     {
         if (value == null)
         {
-            throw new ArgumentNullException (nameof (value));
+            throw new ArgumentNullException(nameof(value));
         }
         if (!Regex.IsMatch(value, @"^\S+@\S+\.\S+$"))
         {
-            throw new ArgumentException ("Email address must contain an @ sign");
+            throw new ArgumentException("Email address must contain an @ sign");
         }
 
         Value = value;
     }
 
-    public override string ToString ()
+    public override string ToString()
         => Value;
 
-    public override bool Equals (object other)
+    public override bool Equals(object other)
         => other is EmailAddress otherEmailAddress &&
-           Value.Equals (otherEmailAddress.Value);
+           Value.Equals(otherEmailAddress.Value);
 
-    public override int GetHashCode ()
-        => Value.GetHashCode ();
+    public override int GetHashCode()
+        => Value.GetHashCode();
 
-    public static implicit operator string (EmailAddress address)
+    public static implicit operator string(EmailAddress address)
         => address?.Value;
 }
 ```
 
 ```csharp
-var a = new EmailAddress ("a@example.com");
-var b = new EmailAddress ("b@example.com");
+var a = new EmailAddress("a@example.com");
+var b = new EmailAddress("b@example.com");
 
-var receiverList = String.Join (";", a, b);
+var receiverList = String.Join(";", a, b);
 ```
 
 Я перенёс проверку корректности адреса из фабричной функции в конструктор, поскольку такая реализация более типична для C#. Также пришлось реализовать сравнение и преобразование к строке, что на F# сделал бы компилятор.
@@ -73,18 +73,18 @@ public sealed class EmailContactInfo
 
     public bool IsEmailVerified { get; }
 
-    public EmailContactInfo (EmailAddress emailAddress, bool isEmailVerified)
+    public EmailContactInfo(EmailAddress emailAddress, bool isEmailVerified)
     {
         if (emailAddress == null)
         {
-            throw new ArgumentNullException (nameof (emailAddress));
+            throw new ArgumentNullException(nameof(emailAddress));
         }
 
         EmailAddress = emailAddress;
         IsEmailVerified = isEmailVerified;
     }
 
-    public override string ToString ()
+    public override string ToString()
         => $"{EmailAddress}, {(IsEmailVerified ? "verified" : "not verified")}";
 }
 ```
@@ -108,11 +108,11 @@ public abstract class Contact
 {
     public PersonalName Name { get; }
 
-    protected Contact (PersonalName name)
+    protected Contact(PersonalName name)
     {
         if (name == null)
         {
-            throw new ArgumentNullException (nameof (name));
+            throw new ArgumentNullException(nameof(name));
         }
 
         Name = name;
@@ -123,12 +123,12 @@ public sealed class PostOnlyContact : Contact
 {
     private readonly PostalContactInfo post_;
 
-    public PostOnlyContact (PersonalName name, PostalContactInfo post)
-        : base (name)
+    public PostOnlyContact(PersonalName name, PostalContactInfo post)
+        : base(name)
     {
         if (post == null)
         {
-            throw new ArgumentNullException (nameof (post));
+            throw new ArgumentNullException(nameof(post));
         }
 
         post_ = post;
@@ -140,11 +140,11 @@ public sealed class EmailOnlyContact : Contact
     private readonly EmailContactInfo email_;
 
     public EmailOnlyContact(PersonalName name, EmailContactInfo email)
-        : base (name)
+        : base(name)
     {
         if (email == null)
         {
-            throw new ArgumentNullException (nameof (email));
+            throw new ArgumentNullException(nameof(email));
         }
 
         email_ = email;
@@ -157,16 +157,16 @@ public sealed class EmailAndPostContact : Contact
 
     private readonly PostalContactInfo post_;
 
-    public EmailAndPostContact (PersonalName name, EmailContactInfo email, PostalContactInfo post)
-        : base (name)
+    public EmailAndPostContact(PersonalName name, EmailContactInfo email, PostalContactInfo post)
+        : base(name)
     {
         if (email == null)
         {
-            throw new ArgumentNullException (nameof (email));
+            throw new ArgumentNullException(nameof(email));
         }
         if (post == null)
         {
-            throw new ArgumentNullException (nameof (post));
+            throw new ArgumentNullException(nameof(post));
         }
 
         email_ = email;
@@ -184,16 +184,16 @@ public sealed class EmailAndPostContact : Contact
 ```csharp
 public abstract class Contact
 {
-    public static Contact FromEmail (PersonalName name, string emailStr)
+    public static Contact FromEmail(PersonalName name, string emailStr)
     {
-        var email = new EmailAddress (emailStr);
-        var emailContactInfo = new EmailContactInfo (email, false);
-        return new EmailOnlyContact (name, emailContactInfo);
+        var email = new EmailAddress(emailStr);
+        var emailContactInfo = new EmailContactInfo(email, false);
+        return new EmailOnlyContact(name, emailContactInfo);
     }
 }
 
-var name = new PersonalName ("A", null, "Smith");
-var contact = Contact.FromEmail (name, "abc@example.com");
+var name = new PersonalName("A", null, "Smith");
+var contact = Contact.FromEmail(name, "abc@example.com");
 ```
 
 Если адрес электронной почты окажется некорректным, этот код выбросит исключение, что можно считать аналогом возврата `None` в исходном примере.
@@ -205,32 +205,32 @@ var contact = Contact.FromEmail (name, "abc@example.com");
 ```csharp
 public abstract class Contact
 {
-    public abstract Contact UpdatePostalAddress (PostalContactInfo newPostalAddress);
+    public abstract Contact UpdatePostalAddress(PostalContactInfo newPostalAddress);
 }
 
 public sealed class EmailOnlyContact : Contact
 {
-    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-        => new EmailAndPostContact (Name, email_, newPostalAddress);
+    public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+        => new EmailAndPostContact(Name, email_, newPostalAddress);
 }
 
 public sealed class PostOnlyContact : Contact
 {
-    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-        => new PostOnlyContact (Name, newPostalAddress);
+    public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+        => new PostOnlyContact(Name, newPostalAddress);
 }
 
 public sealed class EmailAndPostContact : Contact
 {
-    public override Contact UpdatePostalAddress (PostalContactInfo newPostalAddress)
-        => new EmailAndPostContact (Name, email_, newPostalAddress);
+    public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
+        => new EmailAndPostContact(Name, email_, newPostalAddress);
 }
 
-var state = new StateCode ("CA");
-var zip = new ZipCode ("97210");
-var newPostalAddress = new PostalAddress ("123 Main", "", "Beverly Hills", state, zip);
-var newPostalContactInfo = new PostalContactInfo (newPostalAddress, false);
-var newContact = contact.UpdatePostalAddress (newPostalContactInfo);
+var state = new StateCode("CA");
+var zip = new ZipCode("97210");
+var newPostalAddress = new PostalAddress("123 Main", "", "Beverly Hills", state, zip);
+var newPostalContactInfo = new PostalContactInfo(newPostalAddress, false);
+var newContact = contact.UpdatePostalAddress(newPostalContactInfo);
 ```
 
 Как и при использовании option.Value в F#, здесь возможен выброс исключения из конструкторов, если адрес электронной почты, почтовый индекс или штат указаны неверно, но для C# это является распространённой практикой. Конечно же, в рабочем коде здесь или где-то в вызывающем коде должна быть предусмотрена обработка исключений.
@@ -248,54 +248,54 @@ var newContact = contact.UpdatePostalAddress (newPostalContactInfo);
 ```csharp
 public abstract class Contact
 {
-    public abstract void AcceptVisitor (IContactVisitor visitor);
+    public abstract void AcceptVisitor(IContactVisitor visitor);
 }
 
 public interface IContactVisitor
 {
-    void Visit (PersonalName name, EmailContactInfo email);
+    void Visit(PersonalName name, EmailContactInfo email);
 
-    void Visit (PersonalName name, PostalContactInfo post);
+    void Visit(PersonalName name, PostalContactInfo post);
 
-    void Visit (PersonalName name, EmailContactInfo email, PostalContactInfo post);
+    void Visit(PersonalName name, EmailContactInfo email, PostalContactInfo post);
 }
 
 public sealed class EmailOnlyContact : Contact
 {
-    public override void AcceptVisitor (IContactVisitor visitor)
+    public override void AcceptVisitor(IContactVisitor visitor)
     {
         if (visitor == null)
         {
-            throw new ArgumentNullException (nameof (visitor));
+            throw new ArgumentNullException(nameof(visitor));
         }
 
-        visitor.Visit (Name, email_);
+        visitor.Visit(Name, email_);
     }
 }
 
 public sealed class PostOnlyContact : Contact
 {
-    public override void AcceptVisitor (IContactVisitor visitor)
+    public override void AcceptVisitor(IContactVisitor visitor)
     {
         if (visitor == null)
         {
-            throw new ArgumentNullException (nameof (visitor));
+            throw new ArgumentNullException(nameof(visitor));
         }
 
-        visitor.Visit (Name, post_);
+        visitor.Visit(Name, post_);
     }
 }
 
 public sealed class EmailAndPostContact : Contact
 {
-    public override void AcceptVisitor (IContactVisitor visitor)
+    public override void AcceptVisitor(IContactVisitor visitor)
     {
         if (visitor == null)
         {
-            throw new ArgumentNullException (nameof (visitor));
+            throw new ArgumentNullException(nameof(visitor));
         }
 
-        visitor.Visit (Name, email_, post_);
+        visitor.Visit(Name, email_, post_);
     }
 }
 ```
@@ -307,32 +307,32 @@ public sealed class ContactUi
 {
     private sealed class Visitor : IContactVisitor
     {
-        void IContactVisitor.Visit (PersonalName name, EmailContactInfo email)
+        void IContactVisitor.Visit(PersonalName name, EmailContactInfo email)
         {
-            Console.WriteLine (name);
-            Console.WriteLine ("* Email: {0}", email);
+            Console.WriteLine(name);
+            Console.WriteLine("* Email: {0}", email);
         }
 
-        void IContactVisitor.Visit (PersonalName name, PostalContactInfo post)
+        void IContactVisitor.Visit(PersonalName name, PostalContactInfo post)
         {
-            Console.WriteLine (name);
-            Console.WriteLine ("* Postal address: {0}", post);
+            Console.WriteLine(name);
+            Console.WriteLine("* Postal address: {0}", post);
         }
 
-        void IContactVisitor.Visit (PersonalName name, EmailContactInfo email, PostalContactInfo post)
+        void IContactVisitor.Visit(PersonalName name, EmailContactInfo email, PostalContactInfo post)
         {
-            Console.WriteLine (name);
-            Console.WriteLine ("* Email: {0}", email);
-            Console.WriteLine ("* Postal address: {0}", post);
+            Console.WriteLine(name);
+            Console.WriteLine("* Email: {0}", email);
+            Console.WriteLine("* Postal address: {0}", post);
         }
     }
 
-    public void Display (Contact contact)
-        => contact.AcceptVisitor (new Visitor ());
+    public void Display(Contact contact)
+        => contact.AcceptVisitor(new Visitor());
 }
 
-var ui = new ContactUi ();
-ui.Display (newContact);
+var ui = new ContactUi();
+ui.Display(newContact);
 ```
 
 ## Дальнейшие улучшения
@@ -344,20 +344,20 @@ public abstract class Contact
 {
     private sealed class EmailOnlyContact : Contact
     {
-        public EmailOnlyContact (PersonalName name, EmailContactInfo email)
-            : base (name)
+        public EmailOnlyContact(PersonalName name, EmailContactInfo email)
+            : base(name)
         {
 
         }
     }
 
-    private Contact (PersonalName name)
+    private Contact(PersonalName name)
     {
 
     }
 
-    public static Contact EmailOnly (PersonalName name, EmailContactInfo email)
-        => new EmailOnlyContact (name, email);
+    public static Contact EmailOnly(PersonalName name, EmailContactInfo email)
+        => new EmailOnlyContact(name, email);
 }
 ```
 

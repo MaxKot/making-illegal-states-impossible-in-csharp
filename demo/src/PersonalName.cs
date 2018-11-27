@@ -46,15 +46,15 @@ namespace Demo
         /// -или-
         /// Параметр <paramref name="lastName"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public PersonalName (string firstName, string middleInitial, string lastName)
+        public PersonalName(string firstName, string middleInitial, string lastName)
         {
             if (firstName == null)
             {
-                throw new ArgumentNullException (nameof (firstName));
+                throw new ArgumentNullException(nameof(firstName));
             }
             if (lastName == null)
             {
-                throw new ArgumentNullException (nameof (lastName));
+                throw new ArgumentNullException(nameof(lastName));
             }
 
             FirstName = firstName;
@@ -63,7 +63,7 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => MiddleInitial != null
                 ? $"{FirstName} {MiddleInitial} {LastName}"
                 : $"{FirstName} {LastName}";

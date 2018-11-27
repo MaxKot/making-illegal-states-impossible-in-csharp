@@ -32,11 +32,11 @@ namespace Demo
         /// <exception cref="ArgumentNullException">
         /// Параметр <paramref name="emailAddress"/> имеет значение <see langword="null"/>.
         /// </exception>
-        public EmailContactInfo (EmailAddress emailAddress, bool isEmailVerified)
+        public EmailContactInfo(EmailAddress emailAddress, bool isEmailVerified)
         {
             if (emailAddress == null)
             {
-                throw new ArgumentNullException (nameof (emailAddress));
+                throw new ArgumentNullException(nameof(emailAddress));
             }
 
             EmailAddress = emailAddress;
@@ -44,7 +44,7 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => $"{EmailAddress}, {(IsEmailVerified ? "verified" : "not verified")}";
     }
 }

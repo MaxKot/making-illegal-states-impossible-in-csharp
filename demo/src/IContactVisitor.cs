@@ -12,14 +12,14 @@ namespace Demo
         /// </summary>
         /// <param name="name">Имя человека.</param>
         /// <param name="email">Адрес электронной почты.</param>
-        void Visit (PersonalName name, EmailContactInfo email);
+        void Visit(PersonalName name, EmailContactInfo email);
 
         /// <summary>
         /// Обрабатывает контактные данные, содержащие только почтовый адрес.
         /// </summary>
         /// <param name="name">Имя человека.</param>
         /// <param name="post">Почтовый адрес.</param>
-        void Visit (PersonalName name, PostalContactInfo post);
+        void Visit(PersonalName name, PostalContactInfo post);
 
         /// <summary>
         /// Обрабатывает контактные данные, содержащие и адрес электронной почты, и почтовый адрес.
@@ -27,6 +27,6 @@ namespace Demo
         /// <param name="name">Имя человека.</param>
         /// <param name="email">Адрес электронной почты.</param>
         /// <param name="post">Почтовый адрес.</param>
-        void Visit (PersonalName name, EmailContactInfo email, PostalContactInfo post);
+        void Visit(PersonalName name, EmailContactInfo email, PostalContactInfo post);
     }
 }

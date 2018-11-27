@@ -18,11 +18,11 @@ namespace Demo
         /// <exception cref="ArgumentNullException">
         /// <paramref name="name"/> иммет значение <see langword="null"/>.
         /// </exception>
-        protected Contact (PersonalName name)
+        protected Contact(PersonalName name)
         {
             if (name == null)
             {
-                throw new ArgumentNullException (nameof (name));
+                throw new ArgumentNullException(nameof(name));
             }
 
             Name = name;
@@ -35,7 +35,7 @@ namespace Demo
         /// <param name="visitor">
         /// Объект, обрабатывающий вызовы конкретных реализации <see cref="Contact"/>.
         /// </param>
-        public abstract void AcceptVisitor (IContactVisitor visitor);
+        public abstract void AcceptVisitor(IContactVisitor visitor);
 
         /// <summary>
         /// Создаёт ассоциацию укказанного человека с адресом электронной почты.
@@ -43,11 +43,11 @@ namespace Demo
         /// <param name="name">Имя человека.</param>
         /// <param name="emailStr">Адрес электронной почты указанного человека.</param>
         /// <returns>Созданный контакт.</returns>
-        public static Contact FromEmail (PersonalName name, string emailStr)
+        public static Contact FromEmail(PersonalName name, string emailStr)
         {
-            var email = new EmailAddress (emailStr);
-            var emailContactInfo = new EmailContactInfo (email, false);
-            return new EmailOnlyContact (name, emailContactInfo);
+            var email = new EmailAddress(emailStr);
+            var emailContactInfo = new EmailContactInfo(email, false);
+            return new EmailOnlyContact(name, emailContactInfo);
         }
 
         /// <summary>
@@ -55,10 +55,10 @@ namespace Demo
         /// </summary>
         /// <param name="newPostalAddress">Новый почтовый адрес.</param>
         /// <returns>Контакт с обновлённым почтовым адресом.</returns>
-        public abstract Contact UpdatePostalAddress (PostalContactInfo newPostalAddress);
+        public abstract Contact UpdatePostalAddress(PostalContactInfo newPostalAddress);
 
         /// <inheritdoc />
-        public override string ToString ()
+        public override string ToString()
             => $"{Name}";
     }
 }

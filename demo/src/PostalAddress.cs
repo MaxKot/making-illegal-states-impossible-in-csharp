@@ -59,23 +59,23 @@ namespace Demo
         {
             if (address1 == null)
             {
-                throw new ArgumentNullException (nameof (address1));
+                throw new ArgumentNullException(nameof(address1));
             }
             if (address2 == null)
             {
-                throw new ArgumentNullException (nameof (address2));
+                throw new ArgumentNullException(nameof(address2));
             }
             if (city == null)
             {
-                throw new ArgumentNullException (nameof (city));
+                throw new ArgumentNullException(nameof(city));
             }
             if (state == null)
             {
-                throw new ArgumentNullException (nameof (state));
+                throw new ArgumentNullException(nameof(state));
             }
             if (zip == null)
             {
-                throw new ArgumentNullException (nameof (zip));
+                throw new ArgumentNullException(nameof(zip));
             }
 
             Address1 = address1;
@@ -86,8 +86,8 @@ namespace Demo
         }
 
         /// <inheritdoc />
-        public override string ToString ()
-            => !String.IsNullOrEmpty (Address2)
+        public override string ToString()
+            => !String.IsNullOrEmpty(Address2)
                 ? $"{Address1} {Address2}, {City}, {State} {Zip}"
                 : $"{Address1}, {City}, {State} {Zip}";
     }
