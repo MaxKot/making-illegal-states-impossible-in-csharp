@@ -47,7 +47,7 @@ namespace Demo
 
         /// <inheritdoc />
         public override int GetHashCode()
-            => Value != null ? Value.GetHashCode() : 0;
+            => Value?.GetHashCode() ?? 0;
 
         /// <summary>
         /// Осуществляет неявное преобразование значения типа <see cref="EmailAddress"/> к типу
