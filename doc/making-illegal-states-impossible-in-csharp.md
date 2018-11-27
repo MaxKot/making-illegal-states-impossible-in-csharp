@@ -191,7 +191,9 @@ public abstract class Contact
         return new EmailOnlyContact(name, emailContactInfo);
     }
 }
+```
 
+```csharp
 var name = new PersonalName("A", null, "Smith");
 var contact = Contact.FromEmail(name, "abc@example.com");
 ```
@@ -225,7 +227,9 @@ public sealed class EmailAndPostContact : Contact
     public override Contact UpdatePostalAddress(PostalContactInfo newPostalAddress)
         => new EmailAndPostContact(Name, email_, newPostalAddress);
 }
+```
 
+```csharp
 var state = new StateCode("CA");
 var zip = new ZipCode("97210");
 var newPostalAddress = new PostalAddress("123 Main", "", "Beverly Hills", state, zip);
@@ -330,7 +334,9 @@ public sealed class ContactUi
     public void Display(Contact contact)
         => contact.AcceptVisitor(new Visitor());
 }
+```
 
+```csharp
 var ui = new ContactUi();
 ui.Display(newContact);
 ```
