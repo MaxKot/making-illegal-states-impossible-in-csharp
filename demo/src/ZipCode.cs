@@ -40,8 +40,8 @@ namespace Demo
             => Value;
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-            => other is ZipCode otherZipCode &&
+        public override bool Equals(object obj)
+            => obj is ZipCode otherZipCode &&
                Value.Equals(otherZipCode.Value);
 
         /// <inheritdoc />

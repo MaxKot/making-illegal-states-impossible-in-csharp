@@ -41,8 +41,8 @@ namespace Demo
             => Value;
 
         /// <inheritdoc />
-        public override bool Equals(object other)
-            => other is EmailAddress otherEmailAddress &&
+        public override bool Equals(object obj)
+            => obj is EmailAddress otherEmailAddress &&
                Equals(Value, otherEmailAddress.Value);
 
         /// <inheritdoc />
