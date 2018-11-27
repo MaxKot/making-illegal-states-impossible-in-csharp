@@ -91,7 +91,7 @@ public sealed class EmailContactInfo
 
 Снова потребовалось больше кода, чем на F#, но большую часть работы можно выполнить за счёт [рефакторингов в IDE](https://docs.microsoft.com/ru-ru/visualstudio/ide/reference/generate-constructor?view=vs-2017).
 
-Как и `EmailAddress`, `EmailContactInfo` - это [объект-значение](https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D0%B1%D0%BB%D0%B5%D0%BC%D0%BD%D0%BE-%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5#%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82-%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5) (в смысле DDD, а не [типы-значения в .NET](https://docs.microsoft.com/ru-ru/dotnet/csharp/language-reference/keywords/value-types)), давно известный и применяемый в объектом моделировании.
+Как и `EmailAddress`, `EmailContactInfo` - это [объект-значение](https://ru.wikipedia.org/wiki/%D0%9F%D1%80%D0%BE%D0%B1%D0%BB%D0%B5%D0%BC%D0%BD%D0%BE-%D0%BE%D1%80%D0%B8%D0%B5%D0%BD%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%BD%D0%BE%D0%B5_%D0%BF%D1%80%D0%BE%D0%B5%D0%BA%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B5#%D0%9E%D0%B1%D1%8A%D0%B5%D0%BA%D1%82-%D0%B7%D0%BD%D0%B0%D1%87%D0%B5%D0%BD%D0%B8%D0%B5) (в смысле <abbr title="Проблемно-ориентированное проектирование">DDD</abbr>, а не [типов-значений в .NET](https://docs.microsoft.com/ru-ru/dotnet/csharp/language-reference/keywords/value-types)), давно известный и применяемый в объектом моделировании.
 
 Остальные типы - `StateCode`, `ZipCode`, `PostalAddress` и `PersonalName` портируются на C# схожим образом.
 
